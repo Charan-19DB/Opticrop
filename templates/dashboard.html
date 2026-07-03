@@ -4,6 +4,8 @@
 {% block head %}
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Vanilla-Tilt for 3D Animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -16,7 +18,7 @@
     <div class="row g-4 reveal-stagger">
         <!-- Chart 1: Crop Frequency -->
         <div class="col-lg-6">
-            <div class="card card-custom p-4 h-100">
+            <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Crop Frequency Distribution</h5>
                 <canvas id="freqChart"></canvas>
             </div>
@@ -24,7 +26,7 @@
 
         <!-- Chart 2: Average NPK Levels -->
         <div class="col-lg-6">
-            <div class="card card-custom p-4 h-100">
+            <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Average N-P-K Levels per Crop</h5>
                 <canvas id="npkChart"></canvas>
             </div>
@@ -32,7 +34,7 @@
 
         <!-- Chart 3: Temperature & Humidity -->
         <div class="col-lg-6">
-            <div class="card card-custom p-4 h-100">
+            <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Temperature & Humidity Requirements</h5>
                 <canvas id="tempHumChart"></canvas>
             </div>
@@ -40,7 +42,7 @@
 
         <!-- Chart 4: Rainfall Requirements -->
         <div class="col-lg-6">
-            <div class="card card-custom p-4 h-100">
+            <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Average Rainfall by Crop</h5>
                 <canvas id="rainChart"></canvas>
             </div>
