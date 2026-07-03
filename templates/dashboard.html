@@ -2,8 +2,10 @@
 {% block title %}OptiCrop - Dashboard{% endblock %}
 
 {% block head %}
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Highcharts & 3D Module -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-3d.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
 <!-- Vanilla-Tilt for 3D Animations -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
 {% endblock %}
@@ -12,7 +14,7 @@
 <div class="container py-5 fade-in-up">
     <div class="text-center mb-5 reveal">
         <h2 class="fw-bold"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Visualization Dashboard</h2>
-        <p class="text-muted">Interactive analytics of the agricultural dataset</p>
+        <p class="text-muted">Interactive 3D analytics of the agricultural dataset</p>
     </div>
 
     <div class="row g-4 reveal-stagger">
@@ -20,7 +22,7 @@
         <div class="col-lg-6">
             <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Crop Frequency Distribution</h5>
-                <canvas id="freqChart"></canvas>
+                <div id="freqChart" style="height: 400px; width: 100%;"></div>
             </div>
         </div>
 
@@ -28,7 +30,7 @@
         <div class="col-lg-6">
             <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Average N-P-K Levels per Crop</h5>
-                <canvas id="npkChart"></canvas>
+                <div id="npkChart" style="height: 400px; width: 100%;"></div>
             </div>
         </div>
 
@@ -36,7 +38,7 @@
         <div class="col-lg-6">
             <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Temperature & Humidity Requirements</h5>
-                <canvas id="tempHumChart"></canvas>
+                <div id="tempHumChart" style="height: 400px; width: 100%;"></div>
             </div>
         </div>
 
@@ -44,7 +46,7 @@
         <div class="col-lg-6">
             <div class="card card-custom p-4 h-100" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
                 <h5 class="fw-bold mb-4 text-center">Average Rainfall by Crop</h5>
-                <canvas id="rainChart"></canvas>
+                <div id="rainChart" style="height: 400px; width: 100%;"></div>
             </div>
         </div>
     </div>
@@ -68,67 +70,63 @@
     
     const cropCounts = {{ crop_counts | tojson | safe }};
     const countLabels = Object.keys(cropCounts);
-    const countData = countLabels.map(lbl => cropCounts[lbl]);
+    const countData = countLabels.map((lbl, idx) => ({ name: lbl, y: cropCounts[lbl] }));
 
-    // 1. Frequency Chart (Pie)
-    new Chart(document.getElementById('freqChart'), {
-        type: 'pie',
-        data: {
-            labels: countLabels,
-            datasets: [{
-                label: 'Number of Samples',
-                data: countData,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                    '#FF9F40', '#E7E9ED', '#7CB668', '#D9A441', '#3F7A45',
-                    '#7FA8A3', '#EBC97A', '#F7464A', '#46BFBD', '#FDB45C',
-                    '#949FB1', '#4D5360', '#F08080', '#20B2AA', '#87CEFA',
-                    '#778899', '#DDA0DD'
-                ]
-            }]
-        },
-        options: { responsive: true, plugins: { legend: { position: 'right' } } }
+    // Global Highcharts Options
+    Highcharts.setOptions({
+        colors: [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+            '#FF9F40', '#7CB668', '#D9A441', '#3F7A45', '#7FA8A3',
+            '#EBC97A', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1',
+            '#4D5360', '#F08080', '#20B2AA', '#87CEFA', '#778899',
+            '#DDA0DD'
+        ]
     });
 
-    // 2. NPK Chart (Stacked Bar)
-    new Chart(document.getElementById('npkChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: 'Nitrogen (N)', data: N_data, backgroundColor: '#FF6384' },
-                { label: 'Phosphorous (P)', data: P_data, backgroundColor: '#36A2EB' },
-                { label: 'Potassium (K)', data: K_data, backgroundColor: '#FFCE56' }
-            ]
+    // 1. Frequency Chart (3D Pie)
+    Highcharts.chart('freqChart', {
+        chart: { type: 'pie', options3d: { enabled: true, alpha: 45, beta: 0 }, backgroundColor: 'transparent' },
+        title: { text: '' },
+        plotOptions: {
+            pie: { depth: 35, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: true, format: '{point.name}' } }
         },
-        options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true } } }
+        series: [{ type: 'pie', name: 'Samples', data: countData }]
     });
 
-    // 3. Temp & Humidity Chart (Line)
-    new Chart(document.getElementById('tempHumChart'), {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: 'Temperature (°C)', data: Temp_data, borderColor: '#ff6384', tension: 0.1 },
-                { label: 'Humidity (%)', data: Hum_data, borderColor: '#36a2eb', tension: 0.1 }
-            ]
-        },
-        options: { responsive: true }
+    // 2. NPK Chart (3D Stacked Column)
+    Highcharts.chart('npkChart', {
+        chart: { type: 'column', options3d: { enabled: true, alpha: 15, beta: 15, depth: 50, viewDistance: 25 }, backgroundColor: 'transparent' },
+        title: { text: '' },
+        xAxis: { categories: labels, labels: { skew3d: true, style: { fontSize: '10px' } } },
+        yAxis: { title: { text: 'Nutrient Levels' } },
+        plotOptions: { column: { stacking: 'normal', depth: 40 } },
+        series: [
+            { name: 'Nitrogen (N)', data: N_data, color: '#FF6384' },
+            { name: 'Phosphorous (P)', data: P_data, color: '#36A2EB' },
+            { name: 'Potassium (K)', data: K_data, color: '#FFCE56' }
+        ]
     });
 
-    // 4. Rainfall Chart (Polar Area or Bar)
-    new Chart(document.getElementById('rainChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Rainfall (mm)',
-                data: Rain_data,
-                backgroundColor: 'rgba(75, 192, 192, 0.6)'
-            }]
-        },
-        options: { responsive: true }
+    // 3. Temp & Humidity Chart (2D Line)
+    Highcharts.chart('tempHumChart', {
+        chart: { type: 'line', backgroundColor: 'transparent' },
+        title: { text: '' },
+        xAxis: { categories: labels },
+        yAxis: [{ title: { text: 'Temperature (°C)' } }, { title: { text: 'Humidity (%)' }, opposite: true }],
+        series: [
+            { name: 'Temperature', data: Temp_data, color: '#ff6384', tooltip: { valueSuffix: ' °C' } },
+            { name: 'Humidity', data: Hum_data, color: '#36a2eb', yAxis: 1, tooltip: { valueSuffix: ' %' } }
+        ]
+    });
+
+    // 4. Rainfall Chart (3D Column)
+    Highcharts.chart('rainChart', {
+        chart: { type: 'column', options3d: { enabled: true, alpha: 10, beta: 25, depth: 70 }, backgroundColor: 'transparent' },
+        title: { text: '' },
+        xAxis: { categories: labels },
+        yAxis: { title: { text: 'Rainfall (mm)' } },
+        plotOptions: { column: { depth: 25, colorByPoint: true } },
+        series: [{ name: 'Average Rainfall', data: Rain_data, showInLegend: false }]
     });
 </script>
 {% endblock %}
