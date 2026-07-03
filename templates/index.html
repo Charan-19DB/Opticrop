@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}OptiCrop - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section fade-in-up">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">Smart Agricultural <br><span class="text-gradient">Production Optimization</span></h1>
+        <p class="lead mb-5 fs-4">Maximize your yield and sustainability using state-of-the-art Machine Learning.</p>
+        <a href="{{ url_for('predict') }}" class="btn btn-custom btn-lg shadow">
+            <i class="bi bi-cpu-fill me-2"></i> Get Recommendation Now
+        </a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Why Choose OptiCrop?</h2>
+            <p class="text-muted">Data-driven decisions for modern farming.</p>
+        </div>
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-md-4">
+                <div class="card card-custom h-100 p-4 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-graph-up-arrow display-4 text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold">99.5% Accuracy</h4>
+                    <p class="text-muted">Powered by a highly optimized Random Forest algorithm trained on diverse agricultural datasets.</p>
+                </div>
+            </div>
+            <!-- Feature 2 -->
+            <div class="col-md-4">
+                <div class="card card-custom h-100 p-4 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-droplet-half display-4 text-info"></i>
+                    </div>
+                    <h4 class="fw-bold">Comprehensive Metrics</h4>
+                    <p class="text-muted">Analyzes Nitrogen, Phosphorous, Potassium, pH, Humidity, Temperature, and Rainfall.</p>
+                </div>
+            </div>
+            <!-- Feature 3 -->
+            <div class="col-md-4">
+                <div class="card card-custom h-100 p-4 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-lightning-charge-fill display-4 text-warning"></i>
+                    </div>
+                    <h4 class="fw-bold">Instant Results</h4>
+                    <p class="text-muted">Get real-time actionable recommendations in milliseconds, right in your browser.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

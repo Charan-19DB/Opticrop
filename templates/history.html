@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}OptiCrop - Prediction History{% endblock %}
+
+{% block content %}
+<div class="container py-5 fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Prediction History</h2>
+        <a href="{{ url_for('download_csv') }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export to CSV
+        </a>
+    </div>
+
+    <div class="card card-custom p-0 overflow-hidden shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0 text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nitrogen</th>
+                        <th>Phosphorous</th>
+                        <th>Potassium</th>
+                        <th>Temp (°C)</th>
+                        <th>Humidity (%)</th>
+                        <th>pH</th>
+                        <th>Rainfall (mm)</th>
+                        <th><i class="bi bi-star-fill text-warning me-1"></i>Predicted Crop</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in records %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>{{ row[4] }}</td>
+                        <td>{{ row[5] }}</td>
+                        <td>{{ row[6] }}</td>
+                        <td class="fw-bold text-success text-capitalize">{{ row[7] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-muted py-4">No prediction history found. Head to the <a href="{{ url_for('predict') }}">Recommendation engine</a> to make your first prediction!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

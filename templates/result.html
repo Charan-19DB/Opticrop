@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}OptiCrop - Result{% endblock %}
+
+{% block content %}
+<div class="container py-5 fade-in-up">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card card-custom p-5 text-center">
+                
+                <div class="mb-4">
+                    <!-- Dynamic Icon based on crop, falling back to a general leaf -->
+                    <i class="bi bi-flower1 text-success" style="font-size: 5rem;"></i>
+                </div>
+
+                <h3 class="fw-light mb-3">The Best Crop to Cultivate is</h3>
+                
+                <h1 class="display-4 fw-bold text-gradient text-capitalize mb-4">
+                    {{ prediction }}
+                </h1>
+                
+                <p class="text-muted mb-5">
+                    Based on the environmental and soil metrics you provided, our Random Forest model recommends planting <strong>{{ prediction }}</strong> for maximum yield.
+                </p>
+
+                <div>
+                    <a href="{{ url_for('predict') }}" class="btn btn-outline-secondary rounded-pill px-4 me-2 mb-2">
+                        <i class="bi bi-arrow-left me-1"></i> Predict Again
+                    </a>
+                    <a href="{{ url_for('download_pdf', crop=prediction) }}" class="btn btn-danger rounded-pill px-4 me-2 mb-2">
+                        <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download PDF
+                    </a>
+                    <button class="btn btn-custom rounded-pill px-4 mb-2" onclick="window.print()">
+                        <i class="bi bi-printer-fill me-1"></i> Print Result
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
