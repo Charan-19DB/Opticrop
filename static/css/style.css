@@ -1,75 +1,362 @@
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+/* =========================================================
+   OptiCrop — "Growth Arc" design system
+   Soil-to-sprout palette, layered motion, data-instrument type
+   ========================================================= */
+
+:root {
+    --soil-900: #2B1D0E;
+    --soil-700: #4A3420;
+    --leaf-700: #2F5233;
+    --leaf-500: #3F7A45;
+    --sprout-400: #7CB668;
+    --gold-500: #D9A441;
+    --gold-300: #EBC97A;
+    --teal-400: #7FA8A3;
+    --canvas-50: #F6F2E7;
+    --canvas-100: #EFE8D6;
+    --ink-800: #26241D;
+    --ink-500: #5C5748;
+
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Work Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    --ease-grow: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Gradients */
+* { box-sizing: border-box; }
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--canvas-50);
+    color: var(--ink-800);
+    position: relative;
+}
+
+h1, h2, h3, h4, .display-1, .display-3, .display-4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+}
+
+.font-mono, .stat-figure, .field-value {
+    font-family: var(--font-mono);
+}
+
+/* =========================================================
+   Ambient field texture — subtle furrow lines behind everything
+   ========================================================= */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        100deg,
+        rgba(43, 29, 14, 0.028) 0px,
+        rgba(43, 29, 14, 0.028) 1px,
+        transparent 1px,
+        transparent 34px
+    );
+}
+
+/* =========================================================
+   Gradients
+   ========================================================= */
 .bg-dark-gradient {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(120deg, var(--soil-900) 0%, var(--leaf-700) 100%);
 }
 
 .bg-green-gradient {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: linear-gradient(135deg, var(--leaf-700) 0%, var(--sprout-400) 100%);
 }
 
 .text-gradient {
-    background: linear-gradient(to right, #38ef7d 0%, #11998e 100%);
+    background: linear-gradient(95deg, var(--gold-500) 0%, var(--sprout-400) 55%, var(--teal-400) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Custom Hero Section */
+/* =========================================================
+   Hero — layered furrow rows + rising sun disc + grain drift
+   ========================================================= */
 .hero-section {
-    background: linear-gradient(rgba(30,60,114,0.85), rgba(17,153,142,0.85)), url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-    color: white;
-    padding: 120px 0;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--soil-900) 0%, #1c3d24 55%, var(--leaf-700) 100%);
+    color: var(--canvas-50);
+    padding: 140px 0 110px;
+    text-align: center;
+    isolation: isolate;
+}
+
+.hero-section::before {
+    /* rising sun */
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -120px;
+    width: 480px;
+    height: 480px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217,164,65,0.55) 0%, rgba(217,164,65,0) 70%);
+    transform: translateX(-50%);
+    animation: sunPulse 6s ease-in-out infinite;
+    z-index: 0;
+}
+
+.hero-section::after {
+    /* furrow rows sweeping across the base */
+    content: "";
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -40px;
+    height: 160px;
+    background: repeating-linear-gradient(
+        -6deg,
+        rgba(124,182,104,0.18) 0px,
+        rgba(124,182,104,0.18) 10px,
+        transparent 10px,
+        transparent 46px
+    );
+    animation: furrowDrift 18s linear infinite;
+    z-index: 0;
+}
+
+.hero-section .container { position: relative; z-index: 2; }
+
+@keyframes sunPulse {
+    0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+}
+
+@keyframes furrowDrift {
+    0% { background-position-x: 0; }
+    100% { background-position-x: 400px; }
+}
+
+#leafCanvas {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Animated stat strip in hero */
+.hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+}
+
+.hero-stat {
     text-align: center;
 }
 
-/* Cards */
+.hero-stat .stat-figure {
+    font-size: 2.1rem;
+    font-weight: 600;
+    color: var(--gold-300);
+    display: block;
+    line-height: 1;
+}
+
+.hero-stat .stat-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(246,242,231,0.7);
+}
+
+/* =========================================================
+   Cards
+   ========================================================= */
 .card-custom {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 15px;
-    border: none;
-    background: rgba(255, 255, 255, 0.95);
+    transition: transform 0.35s var(--ease-grow), box-shadow 0.35s var(--ease-grow);
+    border-radius: 16px;
+    border: 1px solid rgba(43,29,14,0.06);
+    background: rgba(255, 255, 255, 0.97);
 }
 
 .card-custom:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    box-shadow: 0 20px 40px rgba(43,29,14,0.14);
 }
 
-/* Form Styles */
+/* Feature cards get a sprouting icon animation on hover */
+.card-custom .bi {
+    transition: transform 0.4s var(--ease-grow);
+}
+
+.card-custom:hover .bi {
+    transform: translateY(-4px) scale(1.12);
+}
+
+/* =========================================================
+   Scroll reveal
+   ========================================================= */
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s var(--ease-grow), transform 0.7s var(--ease-grow);
+}
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* stagger children automatically when parent has .reveal-stagger */
+.reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s var(--ease-grow), transform 0.6s var(--ease-grow);
+}
+
+.reveal-stagger.is-visible > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0.05s; }
+.reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 0.15s; }
+.reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 0.25s; }
+.reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 0.35s; }
+
+/* =========================================================
+   Form styles
+   ========================================================= */
 .form-control, .form-select {
     border-radius: 8px;
     padding: 12px;
+    border: 1px solid rgba(43,29,14,0.15);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
 }
 
 .form-control:focus, .form-select:focus {
-    box-shadow: 0 0 10px rgba(17, 153, 142, 0.4);
-    border-color: #11998e;
+    box-shadow: 0 0 0 4px rgba(124,182,104,0.18);
+    border-color: var(--sprout-400);
+}
+
+.input-group:has(.form-control:focus) .input-group-text {
+    background: var(--sprout-400);
+    color: white;
+    border-color: var(--sprout-400);
+    transition: background 0.25s ease;
+}
+
+.field-filled .input-group-text {
+    background: var(--leaf-500);
+    color: white;
+    border-color: var(--leaf-500);
 }
 
 .btn-custom {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: linear-gradient(135deg, var(--leaf-500) 0%, var(--sprout-400) 100%);
     color: white;
     border: none;
     border-radius: 30px;
     padding: 12px 30px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s var(--ease-grow), box-shadow 0.25s var(--ease-grow);
 }
 
 .btn-custom:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(17, 153, 142, 0.4);
+    transform: scale(1.045);
+    box-shadow: 0 12px 24px rgba(63,122,69,0.35);
     color: white;
 }
 
-/* Animations */
+.btn-custom:active { transform: scale(0.98); }
+
+/* ripple */
+.btn-custom .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes rippleAnim {
+    to { transform: scale(3); opacity: 0; }
+}
+
+/* =========================================================
+   Growth Arc — signature element (predict.html)
+   ========================================================= */
+.growth-arc-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.growth-arc {
+    width: 74px;
+    height: 74px;
+    position: relative;
+}
+
+.growth-arc svg { transform: rotate(-90deg); }
+
+.growth-arc circle.arc-track {
+    fill: none;
+    stroke: rgba(43,29,14,0.12);
+    stroke-width: 7;
+}
+
+.growth-arc circle.arc-fill {
+    fill: none;
+    stroke: url(#arcGradient);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-dasharray: 195;
+    stroke-dashoffset: 195;
+    transition: stroke-dashoffset 0.5s var(--ease-grow);
+}
+
+.growth-arc .arc-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: var(--leaf-500);
+    transition: transform 0.4s var(--ease-grow);
+}
+
+.growth-arc.complete .arc-icon {
+    color: var(--sprout-400);
+    transform: scale(1.25);
+}
+
+.growth-arc-label .count {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--soil-900);
+}
+
+.growth-arc-label .hint {
+    font-size: 0.8rem;
+    color: var(--ink-500);
+}
+
+/* =========================================================
+   Animations
+   ========================================================= */
 .fade-in-up {
-    animation: fadeInUp 0.8s ease-out;
+    animation: fadeInUp 0.8s var(--ease-grow);
 }
 
 @keyframes fadeInUp {
@@ -77,30 +364,101 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Dark Mode */
+@keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.float-anim { animation: floatY 4s ease-in-out infinite; }
+
+/* Result page — celebration sprout */
+.sprout-pop {
+    animation: sproutPop 0.7s var(--ease-grow);
+}
+
+@keyframes sproutPop {
+    0% { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+    60% { transform: scale(1.15) rotate(3deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); }
+}
+
+#confettiCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Loading skeleton (dashboard) */
+.skeleton {
+    background: linear-gradient(90deg, rgba(43,29,14,0.06) 25%, rgba(43,29,14,0.12) 37%, rgba(43,29,14,0.06) 63%);
+    background-size: 400% 100%;
+    animation: skeletonShimmer 1.4s ease infinite;
+    border-radius: 8px;
+    min-height: 220px;
+}
+
+@keyframes skeletonShimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .hero-section::before, .hero-section::after, .float-anim, .fade-in-up, .sprout-pop,
+    .reveal, .reveal-stagger > * {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* =========================================================
+   Dark Mode
+   ========================================================= */
 body.dark-mode {
-    background-color: #121212;
-    color: #e0e0e0;
+    background-color: #14140f;
+    color: #e5e1d4;
+}
+
+body.dark-mode::before {
+    background-image: repeating-linear-gradient(
+        100deg,
+        rgba(246,242,231,0.03) 0px,
+        rgba(246,242,231,0.03) 1px,
+        transparent 1px,
+        transparent 34px
+    );
 }
 
 body.dark-mode .card-custom {
-    background: #1e1e1e;
-    color: #e0e0e0;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    background: #1e1d17;
+    color: #e5e1d4;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+    border-color: rgba(255,255,255,0.06);
 }
 
 body.dark-mode .text-muted {
-    color: #a0a0a0 !important;
+    color: #a39d89 !important;
 }
 
 body.dark-mode .form-control, body.dark-mode .form-select {
-    background-color: #2c2c2c;
-    color: #e0e0e0;
-    border-color: #444;
+    background-color: #26251d;
+    color: #e5e1d4;
+    border-color: #423f31;
 }
 
 body.dark-mode .input-group-text {
-    background-color: #333;
-    border-color: #444;
+    background-color: #302e24;
+    border-color: #423f31;
+    color: #e5e1d4;
 }
 
+body.dark-mode .growth-arc-label .count {
+    color: #e5e1d4;
+}
+
+body.dark-mode .table-dark {
+    --bs-table-bg: #201f18;
+}

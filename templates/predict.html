@@ -8,7 +8,28 @@
             <div class="card card-custom p-4 p-md-5">
                 <div class="text-center mb-4">
                     <h2 class="fw-bold text-gradient">Crop Recommendation Engine</h2>
-                    <p class="text-muted">Enter the soil and environmental metrics below to get an AI-powered recommendation.</p>
+                    <p class="text-muted">Enter the soil and environmental metrics below to get an AI-powered
+                        recommendation.</p>
+
+                    <div class="growth-arc-wrap">
+                        <div class="growth-arc">
+                            <svg width="74" height="74" viewBox="0 0 74 74">
+                                <defs>
+                                    <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#D9A441" />
+                                        <stop offset="100%" stop-color="#7CB668" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="arc-track" cx="37" cy="37" r="31" />
+                                <circle class="arc-fill" cx="37" cy="37" r="31" />
+                            </svg>
+                            <div class="arc-icon"><i class="bi bi-moisture"></i></div>
+                        </div>
+                        <div class="growth-arc-label text-start">
+                            <div class="count" id="arcCount">0 / 7</div>
+                            <div class="hint">fields completed</div>
+                        </div>
+                    </div>
                 </div>
 
                 <form action="{{ url_for('predict') }}" method="POST" id="predictForm">
@@ -17,41 +38,51 @@
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Nitrogen (N)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-moisture text-primary"></i></span>
-                                <input type="number" step="any" min="0" class="form-control" name="N" required placeholder="e.g. 90">
+                                <span class="input-group-text bg-light"><i
+                                        class="bi bi-moisture text-primary"></i></span>
+                                <input type="number" step="any" min="0" class="form-control" name="N" required
+                                    placeholder="e.g. 90">
                             </div>
                         </div>
                         <!-- Phosphorous -->
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Phosphorous (P)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-minecart-loaded text-secondary"></i></span>
-                                <input type="number" step="any" min="0" class="form-control" name="P" required placeholder="e.g. 42">
+                                <span class="input-group-text bg-light"><i
+                                        class="bi bi-minecart-loaded text-secondary"></i></span>
+                                <input type="number" step="any" min="0" class="form-control" name="P" required
+                                    placeholder="e.g. 42">
                             </div>
                         </div>
                         <!-- Potassium -->
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Potassium (K)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-hexagon-half text-warning"></i></span>
-                                <input type="number" step="any" min="0" class="form-control" name="K" required placeholder="e.g. 43">
+                                <span class="input-group-text bg-light"><i
+                                        class="bi bi-hexagon-half text-warning"></i></span>
+                                <input type="number" step="any" min="0" class="form-control" name="K" required
+                                    placeholder="e.g. 43">
                             </div>
                         </div>
-                        
+
                         <!-- Temperature -->
                         <div class="col-md-6 mt-4">
                             <label class="form-label fw-semibold">Temperature (°C)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-thermometer-half text-danger"></i></span>
-                                <input type="number" step="any" class="form-control" name="temperature" required placeholder="e.g. 20.8">
+                                <span class="input-group-text bg-light"><i
+                                        class="bi bi-thermometer-half text-danger"></i></span>
+                                <input type="number" step="any" class="form-control" name="temperature" required
+                                    placeholder="e.g. 20.8">
                             </div>
                         </div>
                         <!-- Humidity -->
                         <div class="col-md-6 mt-4">
                             <label class="form-label fw-semibold">Humidity (%)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-cloud-haze2 text-info"></i></span>
-                                <input type="number" step="any" min="0" max="100" class="form-control" name="humidity" required placeholder="e.g. 82.0">
+                                <span class="input-group-text bg-light"><i
+                                        class="bi bi-cloud-haze2 text-info"></i></span>
+                                <input type="number" step="any" min="0" max="100" class="form-control" name="humidity"
+                                    required placeholder="e.g. 82.0">
                             </div>
                         </div>
 
@@ -59,16 +90,20 @@
                         <div class="col-md-6 mt-4">
                             <label class="form-label fw-semibold">Soil pH</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-funnel-fill text-success"></i></span>
-                                <input type="number" step="any" min="0" max="14" class="form-control" name="ph" required placeholder="e.g. 6.5">
+                                <span class="input-group-text bg-light"><i
+                                        class="bi bi-funnel-fill text-success"></i></span>
+                                <input type="number" step="any" min="0" max="14" class="form-control" name="ph" required
+                                    placeholder="e.g. 6.5">
                             </div>
                         </div>
                         <!-- Rainfall -->
                         <div class="col-md-6 mt-4">
                             <label class="form-label fw-semibold">Rainfall (mm)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-cloud-rain-heavy-fill text-primary"></i></span>
-                                <input type="number" step="any" min="0" class="form-control" name="rainfall" required placeholder="e.g. 202.9">
+                                <span class="input-group-text bg-light"><i
+                                        class="bi bi-cloud-rain-heavy-fill text-primary"></i></span>
+                                <input type="number" step="any" min="0" class="form-control" name="rainfall" required
+                                    placeholder="e.g. 202.9">
                             </div>
                         </div>
                     </div>
@@ -86,15 +121,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    // Simple UI Enhancement: Show loading state on form submit
-    document.getElementById('predictForm').addEventListener('submit', function() {
-        const btn = document.getElementById('submitBtn');
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
-        btn.classList.add('disabled');
-    });
-</script>
 {% endblock %}

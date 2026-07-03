@@ -4,28 +4,44 @@
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section fade-in-up">
+    <canvas id="leafCanvas"></canvas>
     <div class="container">
         <h1 class="display-3 fw-bold mb-4">Smart Agricultural <br><span class="text-gradient">Production Optimization</span></h1>
-        <p class="lead mb-5 fs-4">Maximize your yield and sustainability using state-of-the-art Machine Learning.</p>
+        <p class="lead mb-4 fs-4">Maximize your yield and sustainability using state-of-the-art Machine Learning.</p>
         <a href="{{ url_for('predict') }}" class="btn btn-custom btn-lg shadow">
             <i class="bi bi-cpu-fill me-2"></i> Get Recommendation Now
         </a>
+
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="stat-figure" data-count-to="99.5" data-decimals="1" data-suffix="%">0%</span>
+                <span class="stat-label">Model Accuracy</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-figure" data-count-to="22" data-suffix="">0</span>
+                <span class="stat-label">Crops Covered</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-figure" data-count-to="7" data-suffix="">0</span>
+                <span class="stat-label">Soil &amp; Climate Metrics</span>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- Features Section -->
 <section class="py-5 bg-white">
     <div class="container py-4">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 reveal">
             <h2 class="fw-bold">Why Choose OptiCrop?</h2>
             <p class="text-muted">Data-driven decisions for modern farming.</p>
         </div>
-        <div class="row g-4">
+        <div class="row g-4 reveal-stagger">
             <!-- Feature 1 -->
             <div class="col-md-4">
                 <div class="card card-custom h-100 p-4 text-center">
                     <div class="mb-3">
-                        <i class="bi bi-graph-up-arrow display-4 text-primary"></i>
+                        <i class="bi bi-graph-up-arrow display-4 text-primary float-anim"></i>
                     </div>
                     <h4 class="fw-bold">99.5% Accuracy</h4>
                     <p class="text-muted">Powered by a highly optimized Random Forest algorithm trained on diverse agricultural datasets.</p>
@@ -35,7 +51,7 @@
             <div class="col-md-4">
                 <div class="card card-custom h-100 p-4 text-center">
                     <div class="mb-3">
-                        <i class="bi bi-droplet-half display-4 text-info"></i>
+                        <i class="bi bi-droplet-half display-4 text-info float-anim" style="animation-delay: 0.6s;"></i>
                     </div>
                     <h4 class="fw-bold">Comprehensive Metrics</h4>
                     <p class="text-muted">Analyzes Nitrogen, Phosphorous, Potassium, pH, Humidity, Temperature, and Rainfall.</p>
@@ -45,7 +61,7 @@
             <div class="col-md-4">
                 <div class="card card-custom h-100 p-4 text-center">
                     <div class="mb-3">
-                        <i class="bi bi-lightning-charge-fill display-4 text-warning"></i>
+                        <i class="bi bi-lightning-charge-fill display-4 text-warning float-anim" style="animation-delay: 1.2s;"></i>
                     </div>
                     <h4 class="fw-bold">Instant Results</h4>
                     <p class="text-muted">Get real-time actionable recommendations in milliseconds, right in your browser.</p>
