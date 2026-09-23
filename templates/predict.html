@@ -9,9 +9,6 @@
                 
                 <!-- Form Header -->
                 <div class="text-center mb-4">
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fs-7 mb-2">
-                        <i class="bi bi-stars me-1"></i> Random Forest Ensemble Engine
-                    </span>
                     <h2 class="fw-bold text-gradient">Crop Recommendation Engine</h2>
                     <p class="text-muted max-w-600 mx-auto">
                         Adjust soil nutrients and environmental parameters using the sliders or number boxes below, or choose a regional agro-climatic preset for instant testing.
@@ -271,7 +268,7 @@
                             <i class="bi bi-arrow-counterclockwise me-2"></i> Reset
                         </button>
                         <button type="submit" class="btn btn-custom btn-lg px-5 shadow" id="submitBtn">
-                            <i class="bi bi-magic me-2"></i> Generate AI Recommendation
+                            <i class="bi bi-check2-circle me-2"></i> Get Crop Recommendation
                         </button>
                     </div>
                 </form>
@@ -283,6 +280,35 @@
 
 {% block scripts %}
 <script>
+    const paramFieldIds = ['input_N', 'input_P', 'input_K', 'input_temperature', 'input_humidity', 'input_ph', 'input_rainfall'];
+
+    function updateDynamicArc() {
+        let calibratedCount = 0;
+        paramFieldIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.value !== '' && !isNaN(el.value) && Number(el.value) > 0) {
+                calibratedCount++;
+            }
+        });
+        const countLabel = document.getElementById('arcCount');
+        const arcFill = document.querySelector('.growth-arc .arc-fill');
+        const arcWrap = document.querySelector('.growth-arc-wrap');
+        const arcIcon = document.querySelector('.growth-arc .arc-icon');
+        const CIRCUMFERENCE = 195;
+
+        if (countLabel) countLabel.textContent = `${calibratedCount} / 7`;
+        if (arcFill) {
+            const ratio = calibratedCount / 7;
+            arcFill.style.strokeDashoffset = CIRCUMFERENCE - (CIRCUMFERENCE * ratio);
+        }
+        if (arcWrap) arcWrap.classList.toggle('complete', calibratedCount === 7);
+        if (arcIcon) {
+            arcIcon.innerHTML = (calibratedCount === 7)
+                ? '<i class="bi bi-flower1"></i>' 
+                : '<i class="bi bi-moisture"></i>';
+        }
+    }
+
     // Dual Sync: Numeric Input <-> Range Slider
     function setupDualSync() {
         const syncPairs = [
@@ -304,11 +330,13 @@
                 if (source !== 'input' && inp) inp.value = val;
                 if (source !== 'slider' && sld) sld.value = val;
                 if (bdg) bdg.textContent = val + pair.suffix;
+                updateDynamicArc();
             }
 
             if (inp) {
                 inp.addEventListener('input', () => {
                     if (inp.value !== '') update(inp.value, 'input');
+                    else updateDynamicArc();
                 });
             }
             if (sld) {
@@ -433,7 +461,16 @@
         });
     }
 
-    // Initialize Dual Sync
+    // Reset handler
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            setTimeout(updateDynamicArc, 50);
+        });
+    }
+
+    // Initialize Dual Sync and initial Arc count
     setupDualSync();
+    updateDynamicArc();
 </script>
 {% endblock %}

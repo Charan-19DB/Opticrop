@@ -30,7 +30,7 @@
                 
                 <div class="d-flex justify-content-center align-items-center gap-3 mb-4 flex-wrap">
                     <span class="badge bg-success fs-6 px-3 py-2 rounded-pill shadow-sm">
-                        <i class="bi bi-shield-fill-check me-1"></i> {{ confidence }}% Confidence Score
+                        <i class="bi bi-patch-check-fill me-1"></i> Highly Recommended
                     </span>
                     <span class="badge bg-light text-dark border fs-6 px-3 py-2 rounded-pill">
                         Category: <strong>{{ agronomy.category }}</strong>
@@ -85,13 +85,9 @@
                                     <small class="text-muted d-block">{{ cand.category }}</small>
                                 </div>
                             </div>
-                            <span class="fw-bold font-mono {% if loop.first %}text-success fs-5{% else %}text-muted{% endif %}">
-                                {{ cand.confidence }}%
+                            <span class="badge {% if loop.first %}bg-success bg-opacity-25 text-success border border-success border-opacity-25{% elif loop.index == 2 %}bg-info bg-opacity-25 text-info border border-info border-opacity-25{% else %}bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25{% endif %} rounded-pill px-3 py-1 fw-semibold">
+                                {% if loop.first %}Optimal Choice{% elif loop.index == 2 %}Strong Alternative{% else %}Viable Alternative{% endif %}
                             </span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar {% if loop.first %}bg-success{% elif loop.index == 2 %}bg-info{% else %}bg-secondary{% endif %}" 
-                                 role="progressbar" style="width: {{ cand.confidence }}%;"></div>
                         </div>
                     </div>
                     {% endfor %}

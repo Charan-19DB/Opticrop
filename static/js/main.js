@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         predictForm.addEventListener('submit', function () {
             const btn = document.getElementById('submitBtn');
             if (btn) {
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Generating AI Recommendation...';
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Finding Best Crop Recommendation...';
                 btn.classList.add('disabled');
             }
         });

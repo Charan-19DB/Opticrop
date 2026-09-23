@@ -61,7 +61,6 @@
                         <th>pH</th>
                         <th>Rain</th>
                         <th><i class="bi bi-award-fill text-warning me-1"></i>Recommended Crop</th>
-                        <th>Confidence</th>
                         <th>Date</th>
                         <th>Actions</th>
                     </tr>
@@ -86,7 +85,6 @@
                                 {{ row.predicted_crop }}
                             </span>
                         </td>
-                        <td class="font-mono">{{ row.confidence }}%</td>
                         <td class="text-muted text-nowrap">{{ row.created_at[:10] }}</td>
                         <td>
                             <div class="d-flex justify-content-center gap-1">
