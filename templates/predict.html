@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+{% block title %}OptiCrop – Crop Recommendation Engine{% endblock %}
+
+{% block content %}
+<div class="container py-5 fade-in-up">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-custom p-4 p-md-5">
+                
+                <!-- Form Header -->
+                <div class="text-center mb-4">
+                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fs-7 mb-2">
+                        <i class="bi bi-stars me-1"></i> Random Forest Ensemble Engine
+                    </span>
+                    <h2 class="fw-bold text-gradient">Crop Recommendation Engine</h2>
+                    <p class="text-muted max-w-600 mx-auto">
+                        Adjust soil nutrients and environmental parameters using the sliders or number boxes below, or choose a regional agro-climatic preset for instant testing.
+                    </p>
+
+                    <!-- Growth Arc Indicator -->
+                    <div class="growth-arc-wrap my-3">
+                        <div class="growth-arc">
+                            <svg width="74" height="74" viewBox="0 0 74 74">
+                                <defs>
+                                    <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#D9A441" />
+                                        <stop offset="100%" stop-color="#7CB668" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="arc-track" cx="37" cy="37" r="31" />
+                                <circle class="arc-fill" cx="37" cy="37" r="31" />
+                            </svg>
+                            <div class="arc-icon"><i class="bi bi-moisture"></i></div>
+                        </div>
+                        <div class="growth-arc-label text-start">
+                            <div class="count" id="arcCount">0 / 7</div>
+                            <div class="hint">parameters calibrated</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1-Click Regional Presets Bar for Presentation/Demo -->
+                <div class="mb-4 p-3 bg-light rounded-4 border">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-2">
+                        <span class="fw-bold small text-uppercase text-secondary">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i> Quick Regional Presets (Live Demo):
+                        </span>
+                        <!-- Live Weather Auto-Fetch Button -->
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="fetchWeatherBtn">
+                            <i class="bi bi-cloud-sun-fill me-1"></i> 📍 Fetch My Real-Time Weather
+                        </button>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for p in presets %}
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill preset-pill"
+                                data-n="{{ p.N }}" data-p="{{ p.P }}" data-k="{{ p.K }}"
+                                data-temp="{{ p.temp }}" data-humidity="{{ p.humidity }}"
+                                data-ph="{{ p.ph }}" data-rainfall="{{ p.rainfall }}"
+                                data-name="{{ p.name }}">
+                            {{ p.name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Saved Farm Plots (Memory) Quick-Load -->
+                {% if saved_plots and saved_plots|length > 0 %}
+                <div class="mb-4 p-3 bg-success bg-opacity-10 rounded-3 border border-success border-opacity-25 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-journal-bookmark-fill text-success fs-5"></i>
+                        <div>
+                            <strong class="text-success small">Saved Farm Memory:</strong>
+                            <span class="text-muted small ms-1">Recall past soil measurements from memory</span>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-success dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown">
+                            Select Saved Plot
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            {% for sp in saved_plots %}
+                            <li>
+                                <a class="dropdown-item saved-plot-item" href="javascript:void(0)"
+                                   data-n="{{ sp.N }}" data-p="{{ sp.P }}" data-k="{{ sp.K }}"
+                                   data-temp="{{ sp.temperature }}" data-humidity="{{ sp.humidity }}"
+                                   data-ph="{{ sp.ph }}" data-rainfall="{{ sp.rainfall }}"
+                                   data-plot="{{ sp.plot_name }}" data-farmer="{{ sp.farmer_name }}">
+                                    <strong>{{ sp.plot_name }}</strong> <small class="text-muted">({{ sp.farmer_name }})</small>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Main Form -->
+                <form action="{{ url_for('predict') }}" method="POST" id="predictForm">
+                    
+                    <!-- Plot & Farmer Context (Memory Layer) -->
+                    <div class="row g-3 mb-4 p-3 bg-light bg-opacity-50 rounded-3 border">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Farm / Field Plot Name</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-tag-fill text-success"></i></span>
+                                <input type="text" class="form-control" name="farm_name" id="farmNameInput" placeholder="e.g. North Acre Orchard" value="Plot #1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Farmer / Owner Name</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-person-fill text-primary"></i></span>
+                                <input type="text" class="form-control" name="farmer_name" id="farmerNameInput" placeholder="e.g. John Doe" value="Agricultural Producer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soil Chemistry Section -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="bi bi-flower2 text-success me-2"></i>Soil Macro-Nutrients (kg / ha)
+                        </h5>
+                        <div class="row g-4">
+                            <!-- Nitrogen -->
+                            <div class="col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-semibold mb-0">Nitrogen (N)</label>
+                                    <span class="badge bg-light text-dark border font-mono" id="badge_N">0</span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-moisture text-primary"></i></span>
+                                    <input type="number" step="any" min="0" max="140" class="form-control field-sync" 
+                                           id="input_N" name="N" required placeholder="0 - 140" data-sync="slider_N">
+                                </div>
+                                <input type="range" class="form-range slider-sync" min="0" max="140" step="1" 
+                                       id="slider_N" value="0" data-sync="input_N">
+                                <div class="d-flex justify-content-between text-muted fs-8 font-mono">
+                                    <span>0</span><span>70 (Med)</span><span>140</span>
+                                </div>
+                            </div>
+
+                            <!-- Phosphorous -->
+                            <div class="col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-semibold mb-0">Phosphorous (P)</label>
+                                    <span class="badge bg-light text-dark border font-mono" id="badge_P">0</span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-minecart-loaded text-secondary"></i></span>
+                                    <input type="number" step="any" min="5" max="145" class="form-control field-sync" 
+                                           id="input_P" name="P" required placeholder="5 - 145" data-sync="slider_P">
+                                </div>
+                                <input type="range" class="form-range slider-sync" min="5" max="145" step="1" 
+                                       id="slider_P" value="5" data-sync="input_P">
+                                <div class="d-flex justify-content-between text-muted fs-8 font-mono">
+                                    <span>5</span><span>75 (Med)</span><span>145</span>
+                                </div>
+                            </div>
+
+                            <!-- Potassium -->
+                            <div class="col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-semibold mb-0">Potassium (K)</label>
+                                    <span class="badge bg-light text-dark border font-mono" id="badge_K">0</span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-hexagon-half text-warning"></i></span>
+                                    <input type="number" step="any" min="5" max="205" class="form-control field-sync" 
+                                           id="input_K" name="K" required placeholder="5 - 205" data-sync="slider_K">
+                                </div>
+                                <input type="range" class="form-range slider-sync" min="5" max="205" step="1" 
+                                       id="slider_K" value="5" data-sync="input_K">
+                                <div class="d-flex justify-content-between text-muted fs-8 font-mono">
+                                    <span>5</span><span>105 (Med)</span><span>205</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Environmental & Meteorological Section -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="bi bi-cloud-sun-fill text-warning me-2"></i>Environmental &amp; Soil Conditions
+                        </h5>
+                        <div class="row g-4">
+                            <!-- Temperature -->
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-semibold mb-0">Temperature (°C)</label>
+                                    <span class="badge bg-light text-dark border font-mono" id="badge_temp">0°C</span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-thermometer-half text-danger"></i></span>
+                                    <input type="number" step="any" min="5" max="50" class="form-control field-sync" 
+                                           id="input_temperature" name="temperature" required placeholder="5 - 50°C" data-sync="slider_temperature">
+                                </div>
+                                <input type="range" class="form-range slider-sync" min="5" max="50" step="0.5" 
+                                       id="slider_temperature" value="25" data-sync="input_temperature">
+                                <div class="d-flex justify-content-between text-muted fs-8 font-mono">
+                                    <span>5°C</span><span>25°C</span><span>50°C</span>
+                                </div>
+                            </div>
+
+                            <!-- Humidity -->
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-semibold mb-0">Relative Humidity (%)</label>
+                                    <span class="badge bg-light text-dark border font-mono" id="badge_humidity">0%</span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-cloud-haze2 text-info"></i></span>
+                                    <input type="number" step="any" min="10" max="100" class="form-control field-sync" 
+                                           id="input_humidity" name="humidity" required placeholder="10 - 100%" data-sync="slider_humidity">
+                                </div>
+                                <input type="range" class="form-range slider-sync" min="10" max="100" step="1" 
+                                       id="slider_humidity" value="65" data-sync="input_humidity">
+                                <div class="d-flex justify-content-between text-muted fs-8 font-mono">
+                                    <span>10% (Arid)</span><span>55%</span><span>100% (Tropical)</span>
+                                </div>
+                            </div>
+
+                            <!-- Soil pH -->
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-semibold mb-0">Soil Acidity / Alkalinity (pH)</label>
+                                    <span class="badge bg-light text-dark border font-mono" id="badge_ph">0</span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-funnel-fill text-success"></i></span>
+                                    <input type="number" step="any" min="3.5" max="9.9" class="form-control field-sync" 
+                                           id="input_ph" name="ph" required placeholder="3.5 - 9.9" data-sync="slider_ph">
+                                </div>
+                                <input type="range" class="form-range slider-sync" min="3.5" max="9.9" step="0.1" 
+                                       id="slider_ph" value="6.5" data-sync="input_ph">
+                                <div class="d-flex justify-content-between text-muted fs-8 font-mono">
+                                    <span>3.5 (Acidic)</span><span>7.0 (Neutral)</span><span>9.9 (Alkaline)</span>
+                                </div>
+                            </div>
+
+                            <!-- Rainfall -->
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-semibold mb-0">Seasonal Rainfall (mm)</label>
+                                    <span class="badge bg-light text-dark border font-mono" id="badge_rainfall">0mm</span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-cloud-rain-heavy-fill text-primary"></i></span>
+                                    <input type="number" step="any" min="20" max="300" class="form-control field-sync" 
+                                           id="input_rainfall" name="rainfall" required placeholder="20 - 300 mm" data-sync="slider_rainfall">
+                                </div>
+                                <input type="range" class="form-range slider-sync" min="20" max="300" step="1" 
+                                       id="slider_rainfall" value="100" data-sync="input_rainfall">
+                                <div class="d-flex justify-content-between text-muted fs-8 font-mono">
+                                    <span>20mm (Drought)</span><span>150mm</span><span>300mm (Monsoon)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Plot Memory Option -->
+                    <div class="form-check form-switch mb-4 p-3 bg-light rounded-3 d-flex align-items-center gap-3">
+                        <input class="form-check-input ms-0 fs-5" type="checkbox" id="savePlotMemorySwitch">
+                        <label class="form-check-label fw-semibold text-secondary" for="savePlotMemorySwitch">
+                            Save these parameters into persistent Farm Plot memory for future quick loading
+                        </label>
+                    </div>
+
+                    <!-- Submission & Reset Buttons -->
+                    <div class="text-center mt-4 d-flex justify-content-center gap-3">
+                        <button type="reset" class="btn btn-outline-secondary btn-lg px-4" id="resetBtn">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i> Reset
+                        </button>
+                        <button type="submit" class="btn btn-custom btn-lg px-5 shadow" id="submitBtn">
+                            <i class="bi bi-magic me-2"></i> Generate AI Recommendation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Dual Sync: Numeric Input <-> Range Slider
+    function setupDualSync() {
+        const syncPairs = [
+            { input: 'input_N', slider: 'slider_N', badge: 'badge_N', suffix: '' },
+            { input: 'input_P', slider: 'slider_P', badge: 'badge_P', suffix: '' },
+            { input: 'input_K', slider: 'slider_K', badge: 'badge_K', suffix: '' },
+            { input: 'input_temperature', slider: 'slider_temperature', badge: 'badge_temp', suffix: '°C' },
+            { input: 'input_humidity', slider: 'slider_humidity', badge: 'badge_humidity', suffix: '%' },
+            { input: 'input_ph', slider: 'slider_ph', badge: 'badge_ph', suffix: '' },
+            { input: 'input_rainfall', slider: 'slider_rainfall', badge: 'badge_rainfall', suffix: 'mm' }
+        ];
+
+        syncPairs.forEach(pair => {
+            const inp = document.getElementById(pair.input);
+            const sld = document.getElementById(pair.slider);
+            const bdg = document.getElementById(pair.badge);
+
+            function update(val, source) {
+                if (source !== 'input' && inp) inp.value = val;
+                if (source !== 'slider' && sld) sld.value = val;
+                if (bdg) bdg.textContent = val + pair.suffix;
+            }
+
+            if (inp) {
+                inp.addEventListener('input', () => {
+                    if (inp.value !== '') update(inp.value, 'input');
+                });
+            }
+            if (sld) {
+                sld.addEventListener('input', () => {
+                    update(sld.value, 'slider');
+                });
+            }
+        });
+    }
+
+    // Preset Pill Handler
+    document.querySelectorAll('.preset-pill').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.preset-pill').forEach(b => b.classList.remove('btn-success', 'text-white'));
+            this.classList.add('btn-success', 'text-white');
+
+            const farmInput = document.getElementById('farmNameInput');
+            if (farmInput) farmInput.value = this.dataset.name;
+
+            setFormField('input_N', this.dataset.n);
+            setFormField('input_P', this.dataset.p);
+            setFormField('input_K', this.dataset.k);
+            setFormField('input_temperature', this.dataset.temp);
+            setFormField('input_humidity', this.dataset.humidity);
+            setFormField('input_ph', this.dataset.ph);
+            setFormField('input_rainfall', this.dataset.rainfall);
+        });
+    });
+
+    // Saved Plot Recall Handler
+    document.querySelectorAll('.saved-plot-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const farmInput = document.getElementById('farmNameInput');
+            const farmerInput = document.getElementById('farmerNameInput');
+            if (farmInput) farmInput.value = this.dataset.plot;
+            if (farmerInput) farmerInput.value = this.dataset.farmer;
+
+            setFormField('input_N', this.dataset.n);
+            setFormField('input_P', this.dataset.p);
+            setFormField('input_K', this.dataset.k);
+            setFormField('input_temperature', this.dataset.temp);
+            setFormField('input_humidity', this.dataset.humidity);
+            setFormField('input_ph', this.dataset.ph);
+            setFormField('input_rainfall', this.dataset.rainfall);
+        });
+    });
+
+    function setFormField(id, val) {
+        const inp = document.getElementById(id);
+        if (inp) {
+            inp.value = val;
+            inp.dispatchEvent(new Event('input'));
+        }
+    }
+
+    // Live Weather Autofill via Geolocation or Open-Meteo
+    const weatherBtn = document.getElementById('fetchWeatherBtn');
+    if (weatherBtn) {
+        weatherBtn.addEventListener('click', () => {
+            weatherBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Fetching Satellite Weather...';
+            weatherBtn.disabled = true;
+
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => fetchWeatherData(pos.coords.latitude, pos.coords.longitude),
+                    err => fetchWeatherData(null, null) // fallback
+                );
+            } else {
+                fetchWeatherData(null, null);
+            }
+        });
+    }
+
+    async function fetchWeatherData(lat, lon) {
+        try {
+            const url = lat && lon ? `/api/weather?lat=${lat}&lon=${lon}` : '/api/weather';
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.success) {
+                setFormField('input_temperature', data.temperature);
+                setFormField('input_humidity', data.humidity);
+                setFormField('input_rainfall', data.rainfall);
+                weatherBtn.innerHTML = `✅ Applied (${data.temperature}°C, ${data.humidity}%)`;
+                setTimeout(() => {
+                    weatherBtn.innerHTML = '<i class="bi bi-cloud-sun-fill me-1"></i> 📍 Fetch My Real-Time Weather';
+                    weatherBtn.disabled = false;
+                }, 3500);
+            }
+        } catch (e) {
+            weatherBtn.innerHTML = '⚠️ Weather Offline';
+            setTimeout(() => {
+                weatherBtn.innerHTML = '<i class="bi bi-cloud-sun-fill me-1"></i> 📍 Fetch My Real-Time Weather';
+                weatherBtn.disabled = false;
+            }, 2500);
+        }
+    }
+
+    // Save Plot Memory on Submit if toggle is on
+    const predictForm = document.getElementById('predictForm');
+    if (predictForm) {
+        predictForm.addEventListener('submit', function() {
+            const saveToggle = document.getElementById('savePlotMemorySwitch');
+            if (saveToggle && saveToggle.checked) {
+                const plotData = {
+                    plot_name: document.getElementById('farmNameInput').value,
+                    farmer_name: document.getElementById('farmerNameInput').value,
+                    N: document.getElementById('input_N').value,
+                    P: document.getElementById('input_P').value,
+                    K: document.getElementById('input_K').value,
+                    temperature: document.getElementById('input_temperature').value,
+                    humidity: document.getElementById('input_humidity').value,
+                    ph: document.getElementById('input_ph').value,
+                    rainfall: document.getElementById('input_rainfall').value
+                };
+                // Fire async save to SQLite memory
+                fetch('/api/save_plot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(plotData)
+                }).catch(() => {});
+            }
+        });
+    }
+
+    // Initialize Dual Sync
+    setupDualSync();
+</script>
+{% endblock %}

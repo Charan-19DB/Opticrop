@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Google Authentication Setup – OptiCrop AI{% endblock %}
+
+{% block content %}
+<div class="container py-5 fade-in-up">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card card-custom p-4 p-md-5 shadow-lg border-0 text-center">
+                <div class="mb-3">
+                    <span class="d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-warning bg-opacity-10 text-warning fs-1">
+                        <i class="bi bi-google"></i>
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-2">Google OAuth Configuration</h3>
+                <p class="text-muted small mb-4">
+                    OptiCrop is ready for Google OAuth 2.0. Live Google Cloud Client credentials are not yet defined in your <code>.env</code> file.
+                </p>
+
+                <!-- Fast Demo Login Action -->
+                <div class="p-3 bg-light rounded-4 border mb-4 text-start">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-success">Instant Demo</span>
+                        <span class="fw-bold small">Test the Google User Journey Right Now:</span>
+                    </div>
+                    <p class="text-muted small mb-3">
+                        Simulate a Google OAuth sign-in with a single click. This creates a verified Google profile and opens full farm diagnostics.
+                    </p>
+                    <form action="{{ url_for('auth_google_dev_mock_login') }}" method="POST">
+                        <input type="hidden" name="name" value="Charan Producer">
+                        <input type="hidden" name="email" value="charan.farmer@gmail.com">
+                        <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                            <svg width="18" height="18" viewBox="0 0 48 48">
+                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                            </svg>
+                            <span>Continue as Charan (Demo Google Account)</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Setup Instructions for Live Credentials -->
+                <div class="text-start bg-white p-3 rounded-4 border border-dashed mb-4">
+                    <h6 class="fw-bold small mb-2"><i class="bi bi-gear-fill text-primary me-1"></i>To enable Live Google Production Auth:</h6>
+                    <ol class="small text-muted ps-3 mb-0" style="line-height: 1.6;">
+                        <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-success fw-semibold">Google Cloud Console &rarr; Credentials</a>.</li>
+                        <li>Create an <strong>OAuth 2.0 Client ID</strong> (Web Application).</li>
+                        <li>Set <strong>Authorized redirect URI</strong> to: <br><code class="text-dark bg-light px-2 py-1 rounded small d-inline-block mt-1">{{ url_for('auth_google_callback', _external=True) }}</code></li>
+                        <li>Add your credentials to your <code>.env</code> file:
+                            <pre class="bg-dark text-white p-2 rounded mt-2 mb-0 small"><code>GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-client-secret"</code></pre>
+                        </li>
+                    </ol>
+                </div>
+
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Return to Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

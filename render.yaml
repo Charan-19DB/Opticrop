@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: opticrop-ai
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --workers 4 --threads 2 --bind 0.0.0.0:$PORT --timeout 120 app:app
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: opticrop_db
+      - key: GEMINI_API_KEY
+        sync: false
+    disk:
+      name: opticrop-storage
+      mountPath: /opt/render/project/src/dataset
+      sizeGB: 1

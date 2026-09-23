@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OptiCrop – Smart Agricultural Optimization Engine{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts: Fraunces (display), Work Sans (body), IBM Plex Mono (data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-gradient shadow-sm sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" href="{{ url_for('home') }}">
+                <span class="brand-icon-wrap"><i class="bi bi-tree-fill text-success"></i></span>
+                <span>OptiCrop</span>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 fs-7 py-1 px-2 ms-1 rounded-pill">v2.0 AI</span>
+            </a>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto fw-semibold align-items-center gap-1">
+                    <li class="nav-item"><a class="nav-link text-white px-3" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link text-white px-3" href="{{ url_for('predict') }}">Recommendation</a></li>
+                    <li class="nav-item"><a class="nav-link text-white px-3" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link text-white px-3" href="{{ url_for('history') }}">History</a></li>
+                    
+
+                    <li class="nav-item"><a class="nav-link text-white px-2" href="{{ url_for('about') }}">About</a></li>
+                    <li class="nav-item"><a class="nav-link text-white px-2" href="{{ url_for('contact') }}">Contact</a></li>
+
+                    <!-- Authentication Status & Controls -->
+                    {% if session.get('user_id') %}
+                    <li class="nav-item dropdown ms-lg-2">
+                        <button class="btn btn-sm btn-outline-success text-white dropdown-toggle rounded-pill px-3 py-1 d-flex align-items-center gap-2 border-opacity-50" 
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if session.get('user_avatar') %}
+                            <img src="{{ session.get('user_avatar') }}" alt="User Avatar" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                            {% else %}
+                            <span class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                {{ session.get('user_name', 'U')[0]|upper }}
+                            </span>
+                            {% endif %}
+                            <span class="small fw-semibold">{{ session.get('user_name', 'Account') }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                            <li class="px-3 py-2 border-bottom">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="fw-bold small text-dark">{{ session.get('user_name', 'Producer') }}</div>
+                                    {% if session.get('auth_provider') == 'google' %}
+                                    <span class="badge bg-light text-primary border rounded-pill fs-8"><i class="bi bi-google me-1"></i>Google</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-muted fs-8 text-truncate" style="max-width: 180px;">{{ session.get('user_email', '') }}</div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 small d-flex align-items-center gap-2" href="{{ url_for('profile') }}">
+                                    <i class="bi bi-person-badge text-success"></i> My Profile &amp; Security
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 small d-flex align-items-center gap-2" href="{{ url_for('history') }}">
+                                    <i class="bi bi-journal-text text-primary"></i> My Prediction History
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item py-2 small text-danger d-flex align-items-center gap-2" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i> Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="{{ url_for('login') }}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                        </a>
+                    </li>
+                    <li class="nav-item ms-1">
+                        <a class="btn btn-success btn-sm rounded-pill px-3 shadow-sm" href="{{ url_for('signup') }}">
+                            <i class="bi bi-person-plus-fill me-1"></i> Sign Up
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="nav-item ms-lg-2">
+                        <button class="btn btn-outline-light btn-sm rounded-circle theme-toggle-btn" id="darkModeToggle" title="Toggle Dark Mode" aria-label="Toggle Theme">
+                            <i class="bi bi-moon-stars-fill"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm d-flex align-items-center" role="alert">
+                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                        <div>{{ message }}</div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Floating OptiBot AI Agronomist Chat Widget -->
+    <div class="optibot-widget" id="optibotWidget">
+        <button class="optibot-bubble shadow-lg" id="optibotToggleBtn" title="Ask OptiBot Agronomist Assistant">
+            <span class="bot-icon"><i class="bi bi-chat-dots-fill"></i></span>
+            <span class="bot-label">Ask OptiBot</span>
+            <span class="bot-pulse"></span>
+        </button>
+
+        <div class="optibot-panel card card-custom shadow-lg" id="optibotPanel" style="display: none;">
+            <div class="optibot-header d-flex justify-content-between align-items-center p-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bot-avatar"><i class="bi bi-robot"></i></div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-white">OptiBot AI Agronomist</h6>
+                        <small class="text-white-50"><i class="bi bi-dot text-success fs-5 align-middle"></i>Active Farm Intelligence</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white btn-sm" id="optibotCloseBtn" aria-label="Close"></button>
+            </div>
+
+            <div class="optibot-messages p-3" id="optibotMessages">
+                <div class="bot-msg-row incoming">
+                    <div class="msg-bubble">
+                        👋 Hello! I am your <strong>OptiBot Agronomy Assistant</strong> with persistent memory. 
+                        Ask me about fertilizer dosages, irrigation scheduling, why a crop was selected, or pest control tips!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Suggestions -->
+            <div class="optibot-quick-pills px-3 pb-2 d-flex flex-wrap gap-1">
+                <button class="badge rounded-pill opti-pill" data-prompt="What fertilizer should I apply for low Nitrogen?">🧪 Fertilizer Dosage</button>
+                <button class="badge rounded-pill opti-pill" data-prompt="How much irrigation is recommended?">💧 Water Schedule</button>
+                <button class="badge rounded-pill opti-pill" data-prompt="What companion crops should I plant?">🔄 Crop Rotation</button>
+            </div>
+
+            <form class="optibot-input-form p-2 border-top" id="optibotForm">
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm border-0" id="optibotInput" placeholder="Ask agricultural question..." autocomplete="off" required>
+                    <button class="btn btn-success btn-sm px-3" type="submit" id="optibotSendBtn">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto border-top border-secondary">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-tree-fill text-success fs-5"></i>
+                <span class="fw-semibold">OptiCrop AI</span>
+                <span class="text-white-50 ms-2">| Precision Agriculture ML Engine</span>
+            </div>
+            <div class="text-white-50 small">
+                &copy; 2026 OptiCrop. 99.5% Accuracy ML Framework. MIT License.
+            </div>
+            <div class="d-flex gap-3 small">
+                <a href="{{ url_for('dashboard') }}" class="text-white-50 text-decoration-none">Analytics</a>
+                <a href="{{ url_for('history') }}" class="text-white-50 text-decoration-none">Memory</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,190 @@
+import json
+import os
+
+notebook = {
+    "cells": [
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "# OptiCrop - Exploratory Data Analysis (EDA)\n",
+                "This notebook analyzes the `Crop_recommendation.csv` dataset to uncover trends and patterns."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "import pandas as pd\n",
+                "import numpy as np\n",
+                "import matplotlib.pyplot as plt\n",
+                "import seaborn as sns\n",
+                "import warnings\n",
+                "warnings.filterwarnings('ignore')\n",
+                "\n",
+                "# Load Data\n",
+                "df = pd.read_csv('../dataset/Crop_recommendation.csv')\n",
+                "df.head()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 1. Dataset Info, Missing Values, and Duplicates\n",
+                "We start by checking the basic structure of the data."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "print('--- Dataset Info ---')\n",
+                "df.info()\n",
+                "\n",
+                "print('\\n--- Missing Values ---')\n",
+                "print(df.isnull().sum())\n",
+                "\n",
+                "print('\\n--- Duplicates ---')\n",
+                "print(f'Total duplicates: {df.duplicated().sum()}')"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 2. Summary Statistics\n",
+                "Understanding the mean, min, max, and percentiles for each environmental factor."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "display(df.describe())"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 3. Class Distribution\n",
+                "**Explanation:** This bar chart shows the frequency of each crop in the dataset. It ensures our data is balanced. A highly imbalanced dataset would bias the ML model."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "plt.figure(figsize=(12, 6))\n",
+                "sns.countplot(y=df['label'], palette='viridis')\n",
+                "plt.title('Crop Class Distribution')\n",
+                "plt.xlabel('Count')\n",
+                "plt.ylabel('Crop Type')\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 4. Feature Distributions (Histograms)\n",
+                "**Explanation:** Histograms show the spread and skewness of the environmental features. For instance, if pH is mostly between 6 and 7, it tells us most crops prefer neutral soil."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "features = df.columns[:-1]\n",
+                "df[features].hist(figsize=(14, 10), bins=20, color='skyblue', edgecolor='black')\n",
+                "plt.suptitle('Feature Distributions', fontsize=16)\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 5. Outlier Detection (Boxplots)\n",
+                "**Explanation:** Boxplots visualize the interquartile range (IQR). Dots outside the 'whiskers' represent outliers. Potassium (K) and Rainfall often show outliers depending on specific crop needs (e.g., rice needs immense rainfall)."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "plt.figure(figsize=(14, 8))\n",
+                "sns.boxplot(data=df[features], palette='Set2')\n",
+                "plt.title('Outlier Detection across Features')\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 6. Correlation Matrix & Heatmap\n",
+                "**Explanation:** A heatmap of the correlation matrix shows linear relationships between features. Values close to 1 mean positive correlation; close to -1 mean negative. For example, P and K might be highly correlated in typical soil compositions."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "plt.figure(figsize=(10, 8))\n",
+                "corr = df[features].corr()\n",
+                "sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)\n",
+                "plt.title('Feature Correlation Heatmap')\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 7. Pairplots\n",
+                "**Explanation:** Pairplots plot every feature against every other feature, color-coded by the Crop Label. This clearly shows 'clusters'—where certain crops cluster at specific intersections of features (e.g., high rainfall + high temp = specific crop cluster)."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Taking a sample to make pairplot render faster\n",
+                "sns.pairplot(df, hue='label', palette='tab20', corner=True)\n",
+                "plt.show()"
+            ]
+        }
+    ],
+    "metadata": {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3"
+        }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 4
+}
+
+with open("EDA.ipynb", "w") as f:
+    json.dump(notebook, f, indent=4)
+
+print("Notebook generated successfully at OptiCrop/notebooks/EDA.ipynb!")

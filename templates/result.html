@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}OptiCrop – Recommendation Result: {{ agronomy.display_name }}{% endblock %}
+
+{% block head %}
+<!-- Highcharts & More for Spiderweb Radar Chart -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+{% endblock %}
+
+{% block content %}
+<canvas id="confettiCanvas"></canvas>
+<div class="container py-5 fade-in-up">
+    
+    <!-- Top Result Banner -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card card-custom p-4 p-md-5 text-center border-0 shadow-lg position-relative overflow-hidden">
+                <div class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fs-7 d-inline-block mb-2">
+                    <i class="bi bi-patch-check-fill me-1"></i> Random Forest Prediction Certified (99.5% Accuracy)
+                </div>
+
+                <div class="mb-3 sprout-pop">
+                    <i class="bi {{ agronomy.icon }} text-success" style="font-size: 4.5rem;"></i>
+                </div>
+
+                <h4 class="fw-normal text-muted mb-1">The Best Crop to Cultivate is <span class="fw-bold text-dark">{{ farm_name }}</span></h4>
+                <h1 class="display-3 fw-bold text-gradient text-capitalize mb-2">
+                    {{ agronomy.display_name }}
+                </h1>
+                
+                <div class="d-flex justify-content-center align-items-center gap-3 mb-4 flex-wrap">
+                    <span class="badge bg-success fs-6 px-3 py-2 rounded-pill shadow-sm">
+                        <i class="bi bi-shield-fill-check me-1"></i> {{ confidence }}% Confidence Score
+                    </span>
+                    <span class="badge bg-light text-dark border fs-6 px-3 py-2 rounded-pill">
+                        Category: <strong>{{ agronomy.category }}</strong>
+                    </span>
+                    <span class="badge bg-light text-dark border fs-6 px-3 py-2 rounded-pill">
+                        Season: <strong>{{ agronomy.season }}</strong>
+                    </span>
+                </div>
+
+                <!-- Action Buttons Row -->
+                <div class="d-flex justify-content-center flex-wrap gap-2 mb-2">
+                    <a href="{{ url_for('download_pdf', crop=prediction) }}" class="btn btn-danger rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download Agronomic PDF Report
+                    </a>
+                    <button class="btn btn-outline-success rounded-pill px-4" id="askBotWhyBtn">
+                        <i class="bi bi-chat-left-dots-fill me-1"></i> Ask OptiBot Why
+                    </button>
+                    <a href="{{ url_for('predict') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-repeat me-1"></i> New Plot Test
+                    </a>
+                    <button class="btn btn-outline-dark rounded-pill px-3" onclick="window.print()">
+                        <i class="bi bi-printer-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Insights: Top 3 Probabilities & Agronomic Dossier -->
+    <div class="row g-4 justify-content-center">
+        <!-- Top 3 Probability Breakdown -->
+        <div class="col-lg-5">
+            <div class="card card-custom p-4 h-100 shadow-sm">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-bar-chart-steps text-primary"></i>
+                    <span>Top-3 Crop Candidates</span>
+                </h5>
+                <p class="text-muted small mb-4">
+                    Multiclass probability distribution calculated across all 22 crop classes.
+                </p>
+
+                <div class="list-group list-group-flush">
+                    {% for cand in top_candidates %}
+                    <div class="list-group-item px-0 py-3 border-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge {% if loop.first %}bg-success{% else %}bg-secondary{% endif %} rounded-circle p-2">
+                                    #{{ loop.index }}
+                                </span>
+                                <div>
+                                    <strong class="text-capitalize">{{ cand.display_name }}</strong>
+                                    <small class="text-muted d-block">{{ cand.category }}</small>
+                                </div>
+                            </div>
+                            <span class="fw-bold font-mono {% if loop.first %}text-success fs-5{% else %}text-muted{% endif %}">
+                                {{ cand.confidence }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar {% if loop.first %}bg-success{% elif loop.index == 2 %}bg-info{% else %}bg-secondary{% endif %}" 
+                                 role="progressbar" style="width: {{ cand.confidence }}%;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Spider / Radar Chart Container -->
+                <div class="mt-4 pt-3 border-top">
+                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Soil &amp; Climate Radar Profile</h6>
+                    <div id="radarChart" style="height: 240px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agronomic Intelligence Dossier -->
+        <div class="col-lg-5">
+            <div class="card card-custom p-4 h-100 shadow-sm">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-journal-text text-success"></i>
+                    <span>Agronomic Intelligence Dossier</span>
+                </h5>
+
+                <!-- Key Specs Grid -->
+                <div class="row g-2 mb-4 small">
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block">Maturity Cycle</span>
+                            <strong class="text-dark">{{ agronomy.duration_days }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block">Water Requirement</span>
+                            <strong class="text-dark">{{ agronomy.water_need }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block">Optimal pH</span>
+                            <strong class="text-dark">{{ agronomy.optimal_ph }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block">Expected Yield</span>
+                            <strong class="text-dark">{{ agronomy.economic_yield }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fertilizer Advice -->
+                <div class="mb-3">
+                    <h6 class="fw-bold text-dark small mb-1">
+                        <i class="bi bi-eyedropper text-primary me-1"></i> Fertilizer &amp; Nutrition Strategy
+                    </h6>
+                    <p class="text-muted small mb-0">{{ agronomy.fertilizer_tips }}</p>
+                </div>
+
+                <!-- Pest Control -->
+                <div class="mb-3">
+                    <h6 class="fw-bold text-dark small mb-1">
+                        <i class="bi bi-shield-shaded text-danger me-1"></i> Plant Protection &amp; IPM
+                    </h6>
+                    <p class="text-muted small mb-0">{{ agronomy.pest_control }}</p>
+                </div>
+
+                <!-- Companion Crops -->
+                <div>
+                    <h6 class="fw-bold text-dark small mb-1">
+                        <i class="bi bi-arrow-repeat text-success me-1"></i> Companion Planting &amp; Rotation
+                    </h6>
+                    <p class="text-muted small mb-0">{{ agronomy.companion_crops }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Radar Profile Chart
+    const metrics = {{ metrics | tojson | safe }};
+    
+    // Normalize metrics into 0-100 scale for visual spiderweb
+    const categories = ['Nitrogen', 'Phosphorus', 'Potassium', 'Temp', 'Humidity', 'Rainfall'];
+    const normalizedData = [
+        Math.min(100, (metrics.N / 140) * 100),
+        Math.min(100, (metrics.P / 145) * 100),
+        Math.min(100, (metrics.K / 205) * 100),
+        Math.min(100, (metrics.temperature / 45) * 100),
+        Math.min(100, metrics.humidity),
+        Math.min(100, (metrics.rainfall / 300) * 100)
+    ];
+
+    Highcharts.chart('radarChart', {
+        chart: { polar: true, type: 'line', backgroundColor: 'transparent' },
+        title: { text: null },
+        pane: { size: '80%' },
+        xAxis: { categories: categories, tickmarkPlacement: 'on', lineWidth: 0 },
+        yAxis: { gridLineInterpolation: 'polygon', lineWidth: 0, min: 0, max: 100, labels: { enabled: false } },
+        tooltip: { shared: true, pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y:.1f}%</b><br/>' },
+        legend: { enabled: false },
+        series: [{
+            name: 'Plot Soil/Climate Level',
+            data: normalizedData,
+            pointPlacement: 'on',
+            color: '#3F7A45'
+        }]
+    });
+
+    // Ask OptiBot Why button handler
+    const askBotBtn = document.getElementById('askBotWhyBtn');
+    if (askBotBtn) {
+        askBotBtn.addEventListener('click', () => {
+            const botPanel = document.getElementById('optibotPanel');
+            const botInput = document.getElementById('optibotInput');
+            if (botPanel) botPanel.style.display = 'flex';
+            if (botInput) {
+                botInput.value = "Why was {{ agronomy.display_name }} recommended for my soil?";
+                document.getElementById('optibotForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+</script>
+{% endblock %}

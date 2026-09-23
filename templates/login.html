@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Sign In – OptiCrop AI{% endblock %}
+
+{% block content %}
+<div class="auth-zypheris-wrapper fade-in-up">
+    <div class="auth-phone-frame">
+        <!-- Top Curved Wave Banner -->
+        <div class="auth-wave-banner">
+            <h1 class="auth-wave-brand">OptiCrop</h1>
+            <div class="auth-wave-subtitle">Precision Agriculture AI</div>
+            <!-- Multi-layer Organic Wave SVG -->
+            <svg class="auth-wave-svg" viewBox="0 0 500 150" preserveAspectRatio="none">
+                <path d="M0,40 C150,110 350,-20 500,60 L500,150 L0,150 Z" style="stroke: none; fill: rgba(255, 255, 255, 0.35);"></path>
+                <path d="M0,70 C180,140 320,10 500,90 L500,150 L0,150 Z" style="stroke: none; fill: #ffffff;"></path>
+            </svg>
+        </div>
+
+        <!-- Form Card Content -->
+        <div class="auth-content-body">
+            <h2 class="auth-title">Welcome back</h2>
+
+            <form action="{{ url_for('login', next=request.args.get('next')) }}" method="POST" id="loginForm" novalidate>
+                <!-- Email / Username -->
+                <div class="auth-input-group">
+                    <label for="loginEmail" class="auth-label">Email or Username</label>
+                    <input type="email" class="auth-input" id="loginEmail" name="email" 
+                           placeholder="farmer@opticrop.io" required autofocus autocomplete="email"
+                           value="{{ request.form.get('email', '') }}">
+                </div>
+
+                <!-- Password -->
+                <div class="auth-input-group mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="loginPassword" class="auth-label">Password</label>
+                        <a href="{{ url_for('forgot_password') }}" class="small text-muted text-decoration-none" style="font-size: 0.78rem;">
+                            Forgot Password?
+                        </a>
+                    </div>
+                    <input type="password" class="auth-input" id="loginPassword" 
+                           name="password" placeholder="Enter your password" required autocomplete="current-password">
+                    <button class="auth-toggle-pwd" type="button" id="togglePasswordBtn" title="Show/Hide Password" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                    </button>
+                </div>
+
+                <!-- Remember Me Checkbox -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="rememberMe" name="remember" checked>
+                    <label class="form-check-label small text-muted" for="rememberMe" style="font-size: 0.8rem;">
+                        Remember me on this device
+                    </label>
+                </div>
+
+                <!-- Primary Submit Button -->
+                <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">
+                    Log in
+                </button>
+            </form>
+
+            <!-- OR Divider -->
+            <div class="auth-divider">OR</div>
+
+            <!-- Social Authentication (Google SSO Prominent) -->
+            <div class="auth-social-row">
+                <!-- Google Sign-In -->
+                <a href="{{ url_for('auth_google') }}" class="social-btn google-btn" title="Sign in with Google" aria-label="Sign in with Google">
+                    <svg width="22" height="22" viewBox="0 0 48 48">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                </a>
+                <!-- Facebook (Placeholder) -->
+                <a href="{{ url_for('auth_google') }}" class="social-btn" title="Sign in with Facebook (uses Google SSO fallback)" aria-label="Sign in with Facebook">
+                    <i class="bi bi-facebook fs-5 text-primary"></i>
+                </a>
+                <!-- Apple (Placeholder) -->
+                <a href="{{ url_for('auth_google') }}" class="social-btn" title="Sign in with Apple (uses Google SSO fallback)" aria-label="Sign in with Apple">
+                    <i class="bi bi-apple fs-5"></i>
+                </a>
+            </div>
+
+            <!-- Footer: Switch to Sign Up -->
+            <div class="auth-footer-link">
+                Don't have an Account? <a href="{{ url_for('signup') }}">Create Account</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const pwdInput = document.getElementById('loginPassword');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+    if (toggleBtn && pwdInput) {
+        toggleBtn.addEventListener('click', function() {
+            const isPassword = pwdInput.type === 'password';
+            pwdInput.type = isPassword ? 'text' : 'password';
+            toggleIcon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    }
+});
+</script>
+{% endblock %}
